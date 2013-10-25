@@ -10,7 +10,7 @@
 crotchet::second => dur cr;
 
 // overall gain
-0.4 => float master_gain;
+0.2 => float master_gain;
 
 // set the fundamental frequency. We'll stick to the C scale
 130.81 => float ff;
@@ -34,7 +34,7 @@ SawOsc saw4 => ADSR saw_env4 => reverb => dac;
 
 //set the reverb
 master_gain => reverb.gain;
-0.03 => reverb.mix;
+0.05 => reverb.mix;
 
 //set the envelopes
 initialiseEnvelopes();
@@ -71,6 +71,24 @@ playNotes(0.5::cr, getFrequency(ff, 17),1, getFrequency(ff, 7),0, getFrequency(f
 
 playNotes(0.5::cr, getFrequency(ff, 0),1, getFrequency(ff, 5),1, getFrequency(ff, 12),1, getFrequency(ff, 26),1 );
 playNotes(0.5::cr, getFrequency(ff, 31),1, getFrequency(ff, 5),0, getFrequency(ff, 12),0, getFrequency(ff, 14),0 );
+playNotes(1.5::cr, getFrequency(ff, 19),1, getFrequency(ff, 21),1, getFrequency(ff, 24),1, getFrequency(ff, 26),1 );
+
+playNotes(1.5::cr, getFrequency(ff, 19),1, getFrequency(ff, 21),1, getFrequency(ff, 24),1, getFrequency(ff, 23),1 );
+playNotes(0.5::cr, getFrequency(ff, 33),1, getFrequency(ff, 21),0, getFrequency(ff, 24),0, getFrequency(ff, 23),0 );
+playNotes(0.5::cr, getFrequency(ff, 36),1, getFrequency(ff, 21),0, getFrequency(ff, 24),0, getFrequency(ff, 23),0 );
+
+playNotes(1::cr, getFrequency(ff, 24),1, getFrequency(ff, 29),1, getFrequency(ff, 24),0, getFrequency(ff, 38),1 );
+playNotes(1::cr, getFrequency(ff, 21),1, getFrequency(ff, 28),1, getFrequency(ff, 24),0, getFrequency(ff, 36),1 );
+playNotes(0.5::cr, getFrequency(ff, 17),1, getFrequency(ff, 24),1, getFrequency(ff, 24),0, getFrequency(ff, 31),1 );
+playNotes(0.5::cr, getFrequency(ff, 29),1, getFrequency(ff, 24),0, getFrequency(ff, 24),0, getFrequency(ff, 31),0 );
+
+playNotes(1.5::cr, getFrequency(ff, 16),1, getFrequency(ff, 24),1, getFrequency(ff, 24),0, getFrequency(ff, 36),1 );
+playNotes(0.5::cr, getFrequency(ff, 16),1, getFrequency(ff, 24),1, getFrequency(ff, 24),0, getFrequency(ff, 31),1 );
+playNotes(0.5::cr, getFrequency(ff, 16),0, getFrequency(ff, 24),0, getFrequency(ff, 24),0, getFrequency(ff, 23),1 );
+playNotes(0.5::cr, getFrequency(ff, 16),0, getFrequency(ff, 24),0, getFrequency(ff, 24),0, getFrequency(ff, 19),1 );
+
+playNotes(3::cr, getFrequency(ff, 5),1, getFrequency(ff, 12),1, getFrequency(ff, 17),1, getFrequency(ff, 21),1 );
+
 
 while (now < end_of_time)
 {
@@ -79,11 +97,11 @@ while (now < end_of_time)
     
     if ( partial == 1 || partial == 2 || partial == 0 || (partial%4 == 0 && partial%8 !=0) || (partial % 5 == 0 && partial % 10 != 0) || partial % 7 == 0 || partial % 9 == 0 || partial % 11 == 0 ) {
         playNotes(
-        0.5::cr, 
+        1.5::cr, 
         getFrequency(ff, partial), 1, 
+        getFrequency(ff, partial + 5), 1, 
         ff, 1, 
-        ff, 1, 
-        ff, 1
+        ff, 0
         );
     }
 }
@@ -92,26 +110,7 @@ now / second => float end_time;
 30.0 - (end_time - start_time) => float after_end_of_time;
 playNotes(after_end_of_time::second, getFrequency(ff, 0),1, getFrequency(ff, 7),1, getFrequency(ff, 17),1, getFrequency(ff, 21),1 );
 
-/*
-0 => int i;
 
-while (i < 10) {
-    Math.random2(0, 24) => int partial;
-    
-    
-    if ( partial == 1 || partial == 2 || partial == 0 || (partial%4 == 0 && partial%8 !=0) || (partial % 5 == 0 && partial % 10 != 0) || partial % 7 == 0 || partial % 9 == 0 || partial % 11 == 0 ) {
-        playNotes(
-        1.5::crotchet, 
-        getFrequency(ff, partial), 1, 
-        ff, 1, 
-        ff, 0, 
-        ff, 0
-        );
-        
-        i++;
-    }
-}
-*/
 
 
 /*************************************************************************************/
