@@ -45,6 +45,7 @@ initialiseEnvelopes();
 * The actual composition
 */
 
+// Remember when we started
 now / second => float start_time;
 
 playNotes(0.5::cr, ff,1, getFrequency(ff, 7),1, getFrequency(ff, 17),1, getFrequency(ff, 21),1 );
@@ -91,7 +92,7 @@ playNotes(0.5::cr, getFrequency(ff, 16),0, getFrequency(ff, 24),0, getFrequency(
 
 playNotes(3::cr, getFrequency(ff, 5),1, getFrequency(ff, 12),1, getFrequency(ff, 17),1, getFrequency(ff, 21),1 );
 
-// a little bit of randomness, staying roughly in C major
+// a little bit of randomness, staying roughly in C major. Loop until 28 seconds have passed
 while (now < end_of_time)
 {
     Math.random2(0, 24) => int partial;
@@ -107,9 +108,11 @@ while (now < end_of_time)
         );
     }
 }
-
+// When did we end the loop?
 now / second => float end_time;
 30.0 - (end_time - start_time) => float after_end_of_time;
+
+// Play the last chord with whatever time has left
 playNotes(after_end_of_time::second, getFrequency(ff, 0),1, getFrequency(ff, 7),1, getFrequency(ff, 17),1, getFrequency(ff, 21),1 );
 
 <<< now / second >>>;
