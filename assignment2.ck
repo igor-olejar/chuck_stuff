@@ -14,7 +14,14 @@
 // Define gains
 0 => float silence;
 0.3 => float master_gain;
-master_gain / 10 => float snare_gain;
+master_gain => float snare_gain;
+master_gain * 10 => kick_gain;
+
+// Define drum envelope parameters
+1::ms => dur attack;
+75::ms => dur decay;
+0 => float sustain;
+5::ms => dur release;
 
 // Sound network
 
@@ -23,21 +30,19 @@ SawOsc bass => LPF bass_filter => dac.left; // Using the low-pass filter just to
 bass_filter => Echo bass_echo => dac.right; // Using the Echo for a bit of chorusing effect
 bass_filter.set(200.00, 1.0);
 
+master_gain => bass_filter.gain;
+
 // Kick sound
-TriOsc kick => ADSR drum_env => dac;
-drum_env.set(1::ms, 75::ms, 0, 5::ms);
+TriOsc kick => ADSR kick_env => dac;
+kick_env.set(attack, decay, sustain, release);
+kick_gain => kick_env.gain;
 
 // Snare sound
-SqrOsc snare => JCRev reverb => Pan2 pan => drum_env => dac;
-
-0.6 => reverb.mix;
-
-master_gain * 10 => drum_env.gain;
-master_gain => bass_filter.gain;
+SqrOsc snare => ADSR snare_env => Pan2 pan => JCRev reverb => dac;
+snare_env.set(attack, decay, sustain, release);
+0.4 => reverb.mix;
 snare_gain => snare.gain;
-
-//snare panning
--0.5 => pan.pan;
+-0.5 => pan.pan; //snare panning
 
 0 => int i; //counter
 while (now < end_of_time)
@@ -57,10 +62,15 @@ while (now < end_of_time)
         snare_gain => snare.gain;
     }
     
+    //silence => snare.gain;
+    //silence => kick.gain;
+    silence => bass.gain;
     
-    drum_env.keyOn();
+    kick_env.keyOn();
+    snare_env.keyOn();
     2::cr => now;
-    drum_env.keyOff();
+    kick_env.keyOff();
+    snare_env.keyOff();
     
     i++;
 }
