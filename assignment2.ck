@@ -1,12 +1,15 @@
 // Playing with some Unit Generators. See http://chuck.stanford.edu/doc/program/ugen.html
 
-<<< "Assignment 2" >>>;
+<<< "Assignment 2 - Random Ambience" >>>;
 
 // D Dorian scale
 [50, 52, 53, 55, 57, 59, 60, 62] @=> int notes[];
 
 // Define a quarter note
 0.25::second => dur cr; 
+
+// Beginning of time
+now => time beginning_of_time;
 
 // End of time
 30::second + now => time end_of_time;
@@ -15,7 +18,7 @@
 0 => float silence;
 0.3 => float master_gain;
 master_gain => float snare_gain;
-master_gain * 10 => kick_gain;
+master_gain * 10 => float kick_gain;
 
 // Define drum envelope parameters
 1::ms => dur attack;
@@ -42,7 +45,7 @@ SqrOsc snare => ADSR snare_env => Pan2 pan => JCRev reverb => dac;
 snare_env.set(attack, decay, sustain, release);
 0.4 => reverb.mix;
 snare_gain => snare.gain;
--0.5 => pan.pan; //snare panning
+-0.7 => pan.pan; //snare panning
 
 0 => int i; //counter
 while (now < end_of_time)
@@ -64,7 +67,7 @@ while (now < end_of_time)
     
     //silence => snare.gain;
     //silence => kick.gain;
-    silence => bass.gain;
+    //silence => bass.gain;
     
     kick_env.keyOn();
     snare_env.keyOn();
@@ -73,4 +76,17 @@ while (now < end_of_time)
     snare_env.keyOff();
     
     i++;
+    
+    // Fade out
+    if (now/second > (end_of_time/second) - 5) {
+        master_gain / 1.5 => master_gain;
+        setAllLevels(master_gain);
+    }
+}
+
+<<< "Finished at: ", now/second - beginning_of_time/second, " seconds." >>>;
+
+function void setAllLevels(float new_gain)
+{
+    new_gain => bass_filter.gain => kick.gain => snare.gain => reverb.gain;
 }
