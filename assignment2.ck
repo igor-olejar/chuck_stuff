@@ -16,8 +16,8 @@ now => time beginning_of_time;
 
 // Define gains
 0 => float silence;
-0.3 => float master_gain;
-master_gain => float snare_gain;
+0.4 => float master_gain;
+master_gain - 0.2 => float snare_gain;
 master_gain * 10 => float kick_gain;
 
 // Define drum envelope parameters
@@ -47,7 +47,13 @@ snare_env.set(attack, decay, sustain, release);
 snare_gain => snare.gain;
 -0.7 => pan.pan; //snare panning
 
-0 => int i; //counter
+// Melody 1
+SqrOsc melody1 =>Pan2 melody1_pan => dac;
+
+// Melody 2
+SawOsc melody2 =>Pan2 melody2_pan => dac;
+
+0 => int i; //counter used for control
 while (now < end_of_time)
 {
     // Bass frequency
@@ -67,14 +73,20 @@ while (now < end_of_time)
     
     //silence => snare.gain;
     //silence => kick.gain;
-    //silence => bass.gain;
+    // Silence all the melodic synths
+    silence => bass.gain;
+    
+    // Play the melodic sounds after 4 beats
+    if (i > 7) {
+        master_gain => bass.gain;
+    }
     
     kick_env.keyOn();
     snare_env.keyOn();
     2::cr => now;
     kick_env.keyOff();
     snare_env.keyOff();
-    
+
     i++;
     
     // Fade out
