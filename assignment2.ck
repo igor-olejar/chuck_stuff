@@ -65,7 +65,7 @@ while (now < end_of_time)
     Std.mtof(notes[0] - 24) => kick.freq;
     Std.mtof(notes[0]) => snare.freq;
     
-    if (i%2 == 0) {
+    if ( (i - (2 * Math.floor(i/2)) ) == 0) { // emulating the modulo operator as it hasn't been "unlocked" yet
         silence => snare.gain;
     } else {
         snare_gain => snare.gain;
