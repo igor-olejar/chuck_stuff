@@ -1,4 +1,5 @@
 // Playing with some Unit Generators. See http://chuck.stanford.edu/doc/program/ugen.html
+// This should start fading out at 25 seconds and go until 30 seconds
 
 <<< "Assignment 2 - Fromagetheque" >>>;
 
@@ -13,6 +14,9 @@ now => time beginning_of_time;
 
 // End of time
 30::second + now => time end_of_time;
+
+// when to fade out
+end_of_time/second - 5 => float fade_start;
 
 // Define gains
 0 => float silence;
@@ -31,14 +35,14 @@ master_gain * 5 => float kick_gain;
 //Bass sound
 SawOsc bass => LPF bass_filter => dac.left; // Using the low-pass filter just to make it a bit nicer
 bass_filter => Echo bass_echo => dac.right; // Using the Echo for a bit of chorusing effect
-bass_filter.set(200.00, 1.0);
-silence => bass.gain;
+bass_filter.set(200.00, 1.0); // Setting the filter frequency and Q value
+silence => bass.gain; // mute the bass to begin with
 
 
 // Kick sound
 TriOsc kick => ADSR kick_env => dac;
 kick_env.set(attack, decay, sustain, release);
-kick_gain => kick_env.gain;
+kick_gain => kick_env.gain; // setting the initial gain on the kick
 
 // Snare sound
 SqrOsc snare => ADSR snare_env => Pan2 pan => JCRev reverb => dac;
@@ -61,8 +65,8 @@ silence => melody2.gain;
 while (now < end_of_time)
 {
     // Bass frequency
-    Math.random2(0, 7) => int bass_index;
-    Std.mtof( notes[bass_index] - 24 ) => bass.freq;
+    Math.random2(0, 7) => int bass_index; // generate a random integer between 0 and 7
+    Std.mtof( notes[bass_index] - 24 ) => bass.freq; // pick a MIDI note and convert it into frequency
     
     // Kick and snare frequencies
     Std.mtof(notes[0] - 24) => kick.freq;
@@ -92,17 +96,19 @@ while (now < end_of_time)
     
     
     // Play the melodic sounds after 8 beats
-    if (i > 15) {
+    if (i > 15 && ( now/second <= fade_start )) {
         master_gain => bass.gain;
-        Math.random2f(0.1, master_gain - 0.50) => melody1.gain;
-        Math.random2f(0.1, master_gain - 0.50) => melody2.gain;
+        Math.random2f(0.1, master_gain - 0.50) => melody1.gain; // Random gain for melody 1
+        Math.random2f(0.1, master_gain - 0.50) => melody2.gain; // Random gain for melody 2
+    } else {
+        silence => melody1.gain => melody2.gain; // turn the melody off when we reach the fade out
     }
     
-    // Break in the beat
+    // Break in the beat, just for some variety
     if ( (i > 30 && i < 38) || (i > 65 && i < 73) ) {
         silence => snare.gain => kick.gain;
     }
-
+    
     
     // Play the drum sounds
     kick_env.keyOn();
@@ -116,15 +122,18 @@ while (now < end_of_time)
     i++;
     
     // Fade out
-    if (now/second > (end_of_time/second) - 5) {
-        master_gain / 1.5 => master_gain;
-        setAllLevels(master_gain);
+    if (now/second > fade_start) {
+        master_gain / 1.5 => master_gain; // reduce the master gain
+        setAllLevels(master_gain); // set new gain levels for multiple elements using the setAllLevels function
+        master_gain * 5 => kick_env.gain; // a hack for the kick gain
     }
 }
 
 <<< "Finished at: ", now/second - beginning_of_time/second, " seconds." >>>;
 
+// This function receives a float number that becomes the new gain
 function void setAllLevels(float new_gain)
 {
+    // set the gain of multiple elements
     new_gain => bass.gain => kick.gain => snare.gain => reverb.gain;
 }
