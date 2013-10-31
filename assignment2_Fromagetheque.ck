@@ -1,5 +1,5 @@
 // Playing with some Unit Generators. See http://chuck.stanford.edu/doc/program/ugen.html
-// This should start fading out at 25 seconds and go until 30 seconds
+// This should start fading out at 27 seconds and go until 30 seconds
 
 <<< "Assignment 2 - Fromagetheque" >>>;
 
@@ -16,7 +16,7 @@ now => time beginning_of_time;
 30::second + now => time end_of_time;
 
 // when to fade out
-end_of_time/second - 5 => float fade_start;
+end_of_time/second - 2 => float fade_start;
 
 // Define gains
 0 => float silence;
