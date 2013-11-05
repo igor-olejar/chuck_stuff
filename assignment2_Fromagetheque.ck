@@ -1,5 +1,5 @@
 // Playing with some Unit Generators. See http://chuck.stanford.edu/doc/program/ugen.html
-// This should start fading out at 27 seconds and go until 30 seconds
+// This should start fading out at 28 seconds and go until 30 seconds
 
 <<< "Assignment 2 - Fromagetheque" >>>;
 
