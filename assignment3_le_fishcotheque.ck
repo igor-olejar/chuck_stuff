@@ -1,19 +1,16 @@
 <<< "Assignment 3 - Le Fishcotheque" >>>;
 
-// use random numbers
-
-
 // Sound network
-Gain master => dac;
-TriOsc bass => master;
-SndBuf pad =>HPF pad_filter => master; // using the High Pass Filter to cut out the bottom frequencies (http://chuck.stanford.edu/doc/program/ugen_full.html#HPF)
-SndBuf kick => master;
-SndBuf hihat1 => Pan2 hihat_pan => master;
+// Gain master => dac; //not using this because pan doesn't work with master
+TriOsc bass => dac;
+SndBuf pad =>HPF pad_filter => dac; // using the High Pass Filter to cut out the bottom frequencies (http://chuck.stanford.edu/doc/program/ugen_full.html#HPF)
+SndBuf kick => dac;
+SndBuf hihat1 => Pan2 hihat_pan => dac;
 SndBuf hihat2 => hihat_pan;
-SndBuf snare1 => Pan2 snare_pan => master;
+SndBuf snare1 => Pan2 snare_pan => dac;
 SndBuf snare2 => snare_pan;
-SndBuf click1 => Pan2 click1_pan => master;
-SndBuf click2 => Pan2 slick2_pan => master;
+SndBuf click1 => Pan2 click1_pan => dac;
+SndBuf click2 => Pan2 click2_pan => dac;
 
 // load the files
 [
@@ -62,7 +59,7 @@ now => time beginning_of_time;
 30::second + now => time end_of_time;
 
 // Define master gain
-0.6 => master.gain;
+0.7 => dac.gain;
 
 // play the pad sound backwards
 -1 => pad.rate;
@@ -70,6 +67,13 @@ now => time beginning_of_time;
 // set the pad filter frequency and Q value
 100.0 => pad_filter.freq;
 1.0 => pad_filter.Q;
+
+
+// setting the pan positions
+-0.2 => snare_pan.pan;
+-0.5 => hihat_pan.pan;
+0.5 => click1_pan.pan;
+0.95 => click2_pan.pan;
 
 0 => int counter;
 
@@ -157,6 +161,13 @@ while (now < end_of_time) {
             // click 1
             if (beat == 2 || beat == 6 || beat == 10 || beat == 14) {
                 0 => click1.pos;
+            }
+            
+            // click 2
+            Math.random2f(0.8, 1.9) => click2.rate;
+            0.6 => click2.gain;
+            if (beat == 4 || beat == 7 || beat == 11 || beat == 15) {
+                0 => click2.pos;
             }
         }
         
