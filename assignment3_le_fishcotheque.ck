@@ -3,7 +3,8 @@
 // Sound network
 // Gain master => dac; //not using this because pan doesn't work with master
 TriOsc bass => dac;
-SndBuf pad =>HPF pad_filter => dac; // using the High Pass Filter to cut out the bottom frequencies (http://chuck.stanford.edu/doc/program/ugen_full.html#HPF)
+SndBuf pad_left => HPF pad_filter => dac.left; // using the High Pass Filter to cut out the bottom frequencies (http://chuck.stanford.edu/doc/program/ugen_full.html#HPF)
+SndBuf pad_right => HPF pad_filter2 => dac.right;
 SndBuf kick => dac;
 SndBuf hihat1 => Pan2 hihat_pan => dac;
 SndBuf hihat2 => hihat_pan;
@@ -24,7 +25,7 @@ SndBuf click2 => Pan2 click2_pan => dac;
 "/audio/click_05.wav"
 ] @=> string Files[]; // string array holding file locations
 
-me.dir() + Files[0] => pad.read;
+me.dir() + Files[0] => pad_left.read => pad_right.read;
 me.dir() + Files[1] => kick.read;
 me.dir() + Files[2] => hihat1.read;
 me.dir() + Files[3] => hihat2.read;
@@ -34,7 +35,7 @@ me.dir() + Files[6] => click1.read;
 me.dir() + Files[7] => click2.read;
 
 // Set the playheads to end of each sample
-0 => pad.pos; // this sound is reversed
+0 => pad_left.pos => pad_right.pos; // this sound is reversed
 kick.samples() => kick.pos;
 hihat1.samples() => hihat1.pos;
 hihat2.samples() => hihat2.pos;
@@ -59,14 +60,17 @@ now => time beginning_of_time;
 30::second + now => time end_of_time;
 
 // Define master gain
-0.7 => dac.gain;
+0.7 => float master_gain;
+0 => float master_silence;
+master_gain => dac.gain;
 
 // play the pad sound backwards
--1 => pad.rate;
+-1 => pad_left.rate;
+-1.01 => pad_right.rate;
 
 // set the pad filter frequency and Q value
-100.0 => pad_filter.freq;
-1.0 => pad_filter.Q;
+100.0 => pad_filter.freq => pad_filter2.freq;
+1.0 => pad_filter.Q => pad_filter2.Q;
 
 
 // setting the pan positions
@@ -75,21 +79,19 @@ now => time beginning_of_time;
 0.5 => click1_pan.pan;
 0.95 => click2_pan.pan;
 
-0 => int counter;
+0 => int counter; // this variable is used to control the arrangement
 
 while (now < end_of_time) {
     
     // we're working with 16th notes
     counter % 16 => int beat;
     
-    <<< counter >>>;
-    
     // divide the length of the pad sample into 16 pieces
     // play each piece from the last one to the first one
-    (pad.samples()/16) * (16 - beat) => pad.pos; 
+    (pad_left.samples()/16) * (16 - beat) => pad_left.pos => pad_right.pos; 
     
     // after 4 bars, play some snare
-    if (counter > 31 && counter < 96) { // intro
+    if (counter > 31 && counter < 92) { // intro
         
         0.4 => hihat1.gain;
         0.3 => click1.gain;
@@ -119,7 +121,13 @@ while (now < end_of_time) {
         if (beat == 0 || beat == 8) {
             0 => kick.pos;
         }
+    } else if (counter >= 92 && counter < 96) { // a little break 
+        master_silence => dac.gain;
+    } else if (counter > 230) { // fade out
+        master_gain / 1.2 => master_gain;
+        master_gain => dac.gain;
     } else { // main part of the song
+        master_gain => dac.gain;
         
         // Bass sound
         if (counter < 160) {
@@ -130,16 +138,16 @@ while (now < end_of_time) {
             // bass frequency
             Std.mtof(notes[Math.random2(1, 7)] - 12) => bass.freq;
             if (beat == 0 || beat == 1 || beat == 12 || beat == 13) {
-                0.3 => bass.gain; 
+                0.5 => bass.gain; 
             } else {
                 0 => bass.gain;
             }
         }
         
         // pad sound
-        300.0 => pad_filter.freq;
-        7.0 => pad_filter.Q;
-        0.5 => pad_filter.gain;
+        300.0 => pad_filter.freq => pad_filter2.freq;
+        7.0 => pad_filter.Q => pad_filter2.Q;
+        0.5 => pad_filter.gain => pad_filter2.gain;
         
         //beats
         if (beat == 0 || beat == 4 || beat == 8 || beat == 12) {
@@ -187,4 +195,6 @@ while (now < end_of_time) {
     
     counter++;
 }
+
+<<< "Finished at: ", now/second - beginning_of_time/second, " seconds." >>>;
 
