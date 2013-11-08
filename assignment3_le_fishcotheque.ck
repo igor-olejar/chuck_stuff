@@ -191,6 +191,11 @@ while (now < end_of_time) {
         }
     }
     
+    // mute everything except the pad
+    if (counter > 224) {
+        0 => bass.gain => kick.gain => snare1.gain => snare2.gain => hihat1.gain => hihat2.gain => click1.gain => click2.gain;
+    }
+    
     0.5::cr => now;
     
     counter++;
