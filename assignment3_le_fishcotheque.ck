@@ -25,7 +25,7 @@ SndBuf click2 => Pan2 click2_pan => dac;
 "/audio/click_05.wav"
 ] @=> string Files[]; // string array holding file locations
 
-me.dir() + Files[0] => pad_left.read => pad_right.read;
+me.dir() + Files[0] => pad_left.read => pad_right.read; // same sample is loaded into 2 objects
 me.dir() + Files[1] => kick.read;
 me.dir() + Files[2] => hihat1.read;
 me.dir() + Files[3] => hihat2.read;
@@ -35,7 +35,7 @@ me.dir() + Files[6] => click1.read;
 me.dir() + Files[7] => click2.read;
 
 // Set the playheads to end of each sample
-0 => pad_left.pos => pad_right.pos; // this sound is reversed
+0 => pad_left.pos => pad_right.pos; // this sound is reversed, that's why we start at the beginning
 kick.samples() => kick.pos;
 hihat1.samples() => hihat1.pos;
 hihat2.samples() => hihat2.pos;
@@ -66,11 +66,11 @@ master_gain => dac.gain;
 
 // play the pad sound backwards
 -1 => pad_left.rate;
--1.01 => pad_right.rate;
+-1.01 => pad_right.rate; // playing this one slightly faster for the stereo chorus effect
 
 // set the pad filter frequency and Q value
-100.0 => pad_filter.freq => pad_filter2.freq;
-1.0 => pad_filter.Q => pad_filter2.Q;
+100.0 => pad_filter.freq => pad_filter2.freq; // cutting anything below 100 Hz
+1.0 => pad_filter.Q => pad_filter2.Q; // Q value at the default level
 
 
 // setting the pan positions
@@ -132,8 +132,6 @@ while (now < end_of_time) {
         // Bass sound
         if (counter < 160) {
             0 => bass.gain;
-            
-            // set the hihats position to hihat.samples()
         } else {
             // bass frequency
             Std.mtof(notes[Math.random2(1, 7)] - 12) => bass.freq;
@@ -145,11 +143,11 @@ while (now < end_of_time) {
         }
         
         // pad sound
-        300.0 => pad_filter.freq => pad_filter2.freq;
-        7.0 => pad_filter.Q => pad_filter2.Q;
-        0.5 => pad_filter.gain => pad_filter2.gain;
+        300.0 => pad_filter.freq => pad_filter2.freq; // filter out frequencies below 300 Hz
+        7.0 => pad_filter.Q => pad_filter2.Q; // change the Q value for that resonant sound
+        0.5 => pad_filter.gain => pad_filter2.gain; // make the pad a bit quieter
         
-        //beats
+        // kick
         if (beat == 0 || beat == 4 || beat == 8 || beat == 12) {
             0 => kick.pos;
         }
@@ -161,7 +159,7 @@ while (now < end_of_time) {
         
         
         if (counter >= 160) {
-            // snare 2
+            // snare 1
             if (beat == 11) {
                 0 => snare1.pos;
             }
@@ -191,7 +189,7 @@ while (now < end_of_time) {
         }
     }
     
-    // mute everything except the pad
+    // mute everything except the pad at the end
     if (counter > 224) {
         0 => bass.gain => kick.gain => snare1.gain => snare2.gain => hihat1.gain => hihat2.gain => click1.gain => click2.gain;
     }
