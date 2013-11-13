@@ -80,6 +80,7 @@ function void playSequence(int beat, int seq[][])
     // synth
     if (seq[0][beat] > -1) {
         setChordNotes(chord_combo[seq[0][beat]]);
+        customEnvelope(50, 20, 1, 100);
     } else {
         setChordGain(0);
     }
@@ -90,6 +91,48 @@ function void playSequence(int beat, int seq[][])
     } else {
         kick.samples() => kick.pos;
     }
+}
+
+fun void customEnvelope(float attack, float decay, float sustain, float release)
+{
+    // initial gain, for all chord synths
+    chord_synths[0].gain() => float initial_gain;
+    
+    // attack grain
+    initial_gain / attack => float attack_grain;
+    
+    // set the osc gain to zero, to begin with
+    setChordGain(0);
+    
+    // do the attack
+    for (0 => int i; i <= attack; i++) {
+        1::ms => now;
+        setChordGain(chord_synths[0].gain() + attack_grain);
+    }
+    
+    // decay grain
+    (initial_gain - sustain) / decay => float decay_grain;
+    
+    // do the decay
+    for (0 => int i; i <= decay; i++) {
+        1::ms => now;
+        setChordGain(chord_synths[0].gain() + decay_grain);
+    }
+    
+    // sustain time
+    0.5::quarter/ms - attack - decay - release => float sustain_time;
+    
+    sustain_time::ms => now; //play the sound
+    
+    // release grain
+    sustain / release => float release_grain;
+    
+    // do the release
+    for (0 => int i; i <= release; i++) {
+        setChordGain(chord_synths[0].gain() + release_grain);
+        1::ms => now;
+    }
+    
 }
 
 /**************************************/
