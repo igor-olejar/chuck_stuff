@@ -1,10 +1,14 @@
-SinOsc s => dac;
+SinOsc s[2];
+s[0] => dac;
+s[1] => dac;
 
 0.7 => float master_gain;
 
 0.25::second => dur quarter;
 
 master_gain => dac.gain;
+
+0 => s[0].gain => s[1].gain;
 
 fun void ADSR(UGen osc, float attack, float decay, float sustain, float release)
 {
@@ -27,7 +31,7 @@ fun void ADSR(UGen osc, float attack, float decay, float sustain, float release)
     }
     
     // sustain
-    quarter/ms - attack - decay - release => float sustain_time;
+    2::quarter/ms - attack - decay - release => float sustain_time;
     
     sustain_time::ms => now;
     
@@ -39,4 +43,8 @@ fun void ADSR(UGen osc, float attack, float decay, float sustain, float release)
 
 }
 
-ADSR(s, 10, 10, 0.4, 220);
+410 => s[1].freq;
+216 => s[0].freq;
+
+ADSR(s[1], 10, 10, 0.4, 220);
+ADSR(s[0], 10, 10, 0.4, 220);
