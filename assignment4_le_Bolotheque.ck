@@ -24,7 +24,7 @@ chord_synths[2] => Pan2 synth2_pan => dac;
 /* GLOBALS                            */
 /**************************************/
 // Scale
-[51, 53, 55, 56, 58, 60, 61, 63] @=> int notes[];
+[51, 53, 55, 56, 58, 60, 61, 63] @=> int notes[];  // total 7
 
 // Define a quarter note
 0.6::second => dur quarter; 
@@ -36,18 +36,37 @@ now => time beginning_of_time;
 30::second + now => time end_of_time;
 
 // Define master gain
-0.8 => float master_gain;
+0.3 => float master_gain;
 0 => float master_silence;
 master_gain => dac.gain;
 
 // chord combinations
-[[1, 2, 5], [2, 6, 7], [1, 2, 3], [5, 6, 7], [4, 5, 6]] @=> int chord_combo[][];
+[[1, 2, 5], [2, 6, 7], [1, 2, 3], [5, 6, 7], [4, 5, 6]] @=> int chord_combo[][]; // total 5
 
 // sequences
 [
 [2, -1, -1,  1,      2, -1, -1,  3,    4, -1,  3, -1,     0,  1, -1,  2], // pad
-[1,  0,  0,  0,      1,  0,  0,  0,    1,  0,  0,  0,     1,  0,  0,  0] // kick
+[1,  0,  0,  0,      1,  0,  0,  0,    1,  0,  0,  0,     1,  0,  0,  0], // kick
+[0,  0,  1,  0,      0,  0,  0,  1,    0,  0,  1,  0,     0,  1,  0,  0], // snare1
+[0,  0,  1,  0,      0,  0,  0,  1,    0,  0,  1,  0,     0,  1,  0,  0], // snare2
+[1,  1,  1,  0,      1,  1,  1,  1,    1,  0,  1,  1,     1,  1,  0,  1], // hihat1
+[0,  0,  0,  1,      0,  0,  1,  0,    0,  1,  0,  0,     0,  0,  1,  0], // hihat1
+[0,  0,  -1,  1,     3,  2, -1,  0,    0,  1,  4,  -1,    5,  4,  1,  0], // bass
+[0,  1,  0,  1,      0,  1,  0,  1,    0,  1,  0,  1,     0,  1,  0,  1], // click1
+[0,  0,  1,  1,      0,  0,  1,  1,    0,  0,  1,  1,     0,  0,  1,  1] // click2
 ] @=> int sequence_1[][];
+
+[
+[3,  2, -1,  1,      2, -1, -1,  3,    4,  4,  3, -1,     0,  0, -1,  0], // pad
+[1,  1,  0,  0,      1,  0,  0,  0,    1,  0,  0,  0,     1,  0,  0,  0], // kick
+[0,  1,  0,  0,      0,  1,  0,  1,    0,  1,  0,  0,     0,  1,  1,  0], // snare1
+[0,  0,  1,  0,      0,  0,  0,  1,    0,  0,  1,  0,     0,  0,  0,  1], // snare2
+[1,  1,  1,  0,      1,  1,  1,  1,    1,  0,  1,  1,     1,  1,  0,  1], // hihat1
+[0,  0,  0,  1,      0,  0,  1,  0,    0,  1,  0,  0,     0,  0,  1,  0], // hihat1
+[0,  0,  -1,  1,     3,  2, -1,  0,    0,  1,  4,  -1,    5,  4,  1,  0], // bass
+[0,  1,  0,  1,      0,  1,  0,  1,    0,  1,  0,  1,     0,  1,  0,  1], // click1
+[0,  0,  1,  1,      0,  0,  1,  1,    0,  0,  1,  1,     0,  0,  1,  1] // click2
+] @=> int sequence_2[][];
 
 
 /**************************************/
@@ -80,7 +99,7 @@ function void playSequence(int beat, int seq[][])
     // synth
     if (seq[0][beat] > -1) {
         setChordNotes(chord_combo[seq[0][beat]]);
-        customEnvelope(50, 20, 1, 100);
+        customEnvelope(10, 10, 0.1, 100);
     } else {
         setChordGain(0);
     }
@@ -90,6 +109,56 @@ function void playSequence(int beat, int seq[][])
         0 => kick.pos;
     } else {
         kick.samples() => kick.pos;
+    }
+    
+    // snare1
+    if (seq[2][beat]) {
+        0 => snare1.pos;
+    } else {
+        snare1.samples() => snare1.pos;
+    }
+    
+    // snare2
+    if (seq[3][beat]) {
+        0 => snare2.pos;
+    } else {
+        snare2.samples() => snare2.pos;
+    }
+    
+    // hihat1
+    if (seq[4][beat]) {
+        0 => hihat1.pos;
+    } else {
+        hihat1.samples() => hihat1.pos;
+    }
+    
+    // hihat2
+    if (seq[5][beat]) {
+        0 => hihat2.pos;
+    } else {
+        hihat2.samples() => hihat2.pos;
+    }
+    
+    // bass
+    if (seq[6][beat] > -1) {
+        Std.mtof(notes[seq[6][beat]] - 12) => bass.freq;
+        0.6 => bass.gain;
+    } else {
+        0 => bass.gain;
+    }
+    
+    // click1
+    if (seq[7][beat]) {
+        0 => click1.pos;
+    } else {
+        click1.samples() => click1.pos;
+    }
+    
+    // click2
+    if (seq[8][beat]) {
+        0 => click2.pos;
+    } else {
+        click2.samples() => click2.pos;
     }
 }
 
@@ -172,6 +241,9 @@ click2.samples() => click2.pos;
 // set the gain of the synth to 0
 0 => bass.gain;
 
+// hihat
+0.4 => hihat_pan.gain;
+
 0 => int counter; // this variable is used to control the arrangement
 
 //while (now < end_of_time) {
@@ -181,13 +253,16 @@ while (true) {
     counter % 16 => int beat;
     
     setChordGain(0.07);
-
+    
     Math.random2f(0.8, 1) => chord_synths[2].width => chord_synths[1].width;
     
-    playSequence(beat, sequence_1);
-    
+    if (counter < 16) 
+        playSequence(beat, sequence_1);
+    else if (counter >= 16 && counter < 32)
+        playSequence(beat, sequence_2);
     
     0.5::quarter => now;
+    
     
     counter++;
 }
