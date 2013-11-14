@@ -19,6 +19,11 @@ chord_synths[2] => Pan2 synth2_pan => dac;
 -1 => synth1_pan.pan;
 1 => synth2_pan.pan;
 
+-0.9 => hihat_pan.pan;
+0.4 => snare_pan.pan;
+
+0.8 => click1_pan.pan => click2_pan.pan;
+
 
 /**************************************/
 /* GLOBALS                            */
@@ -50,8 +55,8 @@ master_gain => dac.gain;
 [0,  0,  1,  0,      0,  0,  0,  1,    0,  0,  1,  0,     0,  1,  0,  0], // snare1
 [0,  0,  1,  0,      0,  0,  0,  1,    0,  0,  1,  0,     0,  1,  0,  0], // snare2
 [1,  1,  1,  0,      1,  1,  1,  1,    1,  0,  1,  1,     1,  1,  0,  1], // hihat1
-[0,  0,  0,  1,      0,  0,  1,  0,    0,  1,  0,  0,     0,  0,  1,  0], // hihat1
-[0,  0,  -1,  1,     3,  2, -1,  0,    0,  1,  4,  -1,    5,  4,  1,  0], // bass
+[1,  0,  0,  0,      0,  0,  0,  0,    0,  0,  0,  0,     0,  0,  0,  0], // hihat2
+[0,  0,  -1, 1,      3,  2, -1,  0,    0,  1,  4,  -1,    5,  4,  1,  0], // bass
 [0,  1,  0,  1,      0,  1,  0,  1,    0,  1,  0,  1,     0,  1,  0,  1], // click1
 [0,  0,  1,  1,      0,  0,  1,  1,    0,  0,  1,  1,     0,  0,  1,  1] // click2
 ] @=> int sequence_1[][];
@@ -62,11 +67,23 @@ master_gain => dac.gain;
 [0,  1,  0,  0,      0,  1,  0,  1,    0,  1,  0,  0,     0,  1,  1,  0], // snare1
 [0,  0,  1,  0,      0,  0,  0,  1,    0,  0,  1,  0,     0,  0,  0,  1], // snare2
 [1,  1,  1,  0,      1,  1,  1,  1,    1,  0,  1,  1,     1,  1,  0,  1], // hihat1
-[0,  0,  0,  1,      0,  0,  1,  0,    0,  1,  0,  0,     0,  0,  1,  0], // hihat1
+[1,  0,  0,  0,      0,  0,  0,  0,    0,  0,  0,  0,     0,  0,  0,  0], // hihat2
 [0,  0,  -1,  1,     3,  2, -1,  0,    0,  1,  4,  -1,    5,  4,  1,  0], // bass
 [0,  1,  0,  1,      0,  1,  0,  1,    0,  1,  0,  1,     0,  1,  0,  1], // click1
 [0,  0,  1,  1,      0,  0,  1,  1,    0,  0,  1,  1,     0,  0,  1,  1] // click2
 ] @=> int sequence_2[][];
+
+[
+[0,  0, 0,  1,      0, 0, 0,  3,    0,  0,  0, 2,     0,  0, 0,  4], // pad
+[1,  0,  1,  0,      1,  0,  1,  0,    1,  0,  1,  0,     1,  0,  1,  0], // kick
+[1,  1,  0,  0,      1,  1,  0,  1,    1,  1,  0,  0,     1,  1,  0,  0], // snare1
+[0,  0,  0,  0,      0,  0,  0,  0,    0,  0,  0,  0,     0,  0,  0,  0], // snare2
+[1,  0,  1,  0,      1,  0,  1,  0,    1,  0,  1,  0,     1,  0,  1,  0], // hihat1
+[0,  0,  0,  0,      0,  0,  0,  0,    0,  0,  0,  0,     0,  0,  0,  0], // hihat2
+[-1,  0,  -1,  0,    -1,  0, -1,  0,   -1,  0,  -1,  0,   -1,  0, -1,  0], // bass
+[0,  1,  0,  1,      0,  1,  0,  1,    0,  1,  0,  1,     0,  1,  0,  1], // click1
+[0,  0,  1,  1,      0,  0,  1,  1,    0,  0,  1,  1,     0,  0,  1,  1] // click2
+] @=> int sequence_3[][];
 
 
 /**************************************/
@@ -246,8 +263,8 @@ click2.samples() => click2.pos;
 
 0 => int counter; // this variable is used to control the arrangement
 
-//while (now < end_of_time) {
-while (true) {
+while (now < end_of_time) {
+//while (true) {
     
     // we're working with 16th notes
     counter % 16 => int beat;
@@ -256,10 +273,12 @@ while (true) {
     
     Math.random2f(0.8, 1) => chord_synths[2].width => chord_synths[1].width;
     
-    if (counter < 16) 
+    if (counter < 16 || (counter >= 32 && counter < 48)) 
         playSequence(beat, sequence_1);
     else if (counter >= 16 && counter < 32)
         playSequence(beat, sequence_2);
+    else 
+        playSequence(beat, sequence_3);
     
     0.5::quarter => now;
     
