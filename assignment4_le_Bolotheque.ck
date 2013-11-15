@@ -1,4 +1,5 @@
 <<< "Assignment 4 - Le Bolotheque" >>>;
+<<< "Should be just over 33 seconds, because, you know..." >>>;
 
 /**************************************/
 /* Sound Network                      */
@@ -38,7 +39,7 @@ chord_synths[2] => Pan2 synth2_pan => dac;
 now => time beginning_of_time;
 
 // End of time
-30::second + now => time end_of_time;
+33::second + now => time end_of_time;
 
 // Define master gain
 0.3 => float master_gain;
@@ -79,7 +80,7 @@ master_gain => dac.gain;
 [1,  1,  0,  0,      1,  1,  0,  1,    1,  1,  0,  0,     1,  1,  0,  0], // snare1
 [0,  0,  0,  0,      0,  0,  0,  0,    0,  0,  0,  0,     0,  0,  0,  0], // snare2
 [1,  0,  1,  0,      1,  0,  1,  0,    1,  0,  1,  0,     1,  0,  1,  0], // hihat1
-[0,  0,  0,  0,      0,  0,  0,  0,    0,  0,  0,  0,     0,  0,  0,  0], // hihat2
+[1,  0,  0,  0,      0,  0,  0,  0,    0,  0,  0,  0,     0,  0,  0,  0], // hihat2
 [-1,  0,  -1,  0,    -1,  0, -1,  0,   -1,  0,  -1,  0,   -1,  0, -1,  0], // bass
 [0,  1,  0,  1,      0,  1,  0,  1,    0,  1,  0,  1,     0,  1,  0,  1], // click1
 [0,  0,  1,  1,      0,  0,  1,  1,    0,  0,  1,  1,     0,  0,  1,  1] // click2
@@ -264,14 +265,21 @@ click2.samples() => click2.pos;
 0 => int counter; // this variable is used to control the arrangement
 
 while (now < end_of_time) {
-//while (true) {
     
     // we're working with 16th notes
     counter % 16 => int beat;
     
+    // how loud the chords should be
     setChordGain(0.07);
     
+    // randomly change the synth width for fun
     Math.random2f(0.8, 1) => chord_synths[2].width => chord_synths[1].width;
+    
+    // randomly change the rate of snare2
+    Math.random2f(0.9, 1.3) => snare2.rate;
+    
+    // randomly change the rate of clicks
+    Math.random2f(-1.0, 1.0) => click1.rate => click2.rate;
     
     if (counter < 16 || (counter >= 32 && counter < 48)) 
         playSequence(beat, sequence_1);
