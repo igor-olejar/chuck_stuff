@@ -1,7 +1,3 @@
-// kick3 and kick 4
-// snare 1
-// Hihat 2
-
 <<< "Assignment 5 - Le Sociotheque" >>>;
 
 /**************************************/
@@ -11,17 +7,18 @@ SndBuf kick1 => Dyno drum_comp => dac;
 SndBuf kick2 => drum_comp;
 SndBuf snare => drum_comp;
 SndBuf hihat => Pan2 hihat_pan => dac;
-hihat_pan => drum_comp;
+Noise noise => ADSR noise_env => drum_comp;
+//hihat_pan => drum_comp;
 
 // shaker
 Shakers shaker => Pan2 shaker_pan => dac;
-shaker_pan => drum_comp;
+//shaker_pan => drum_comp;
 
 // reverb chain
-snare => JCRev reverb => dac;
+/*snare => JCRev reverb => dac;
 hihat => reverb;
 shaker => reverb;
-0.05 => reverb.mix;
+0.05 => reverb.mix;*/
 
 /**************************************/
 /* GLOBALS                            */
@@ -39,7 +36,7 @@ now => time beginning_of_time;
 30::second + now => time end_of_time;
 
 // Define master gain
-0.9 => float master_gain;
+1.0 => float master_gain;
 0 => float master_silence;
 master_gain => dac.gain;
 
@@ -63,9 +60,32 @@ hihat.samples() => hihat.pos;
 snare.samples() => snare.pos;
 
 drum_comp.compress();
-0.8 => drum_comp.thresh;
+0.6 => drum_comp.thresh;
 30::ms => drum_comp.attackTime;
 60::ms => drum_comp.releaseTime;
+2.0 => drum_comp.gain;
+
+0.3 => kick2.gain;
+
+2.0 => float snare_loud;
+0.2 => float snare_quiet;
+(1::ms, 20::ms, 0.0, 5::ms) => noise_env.set;
+0.4 => noise_env.gain;
+
+fun void playKick()
+{
+    0 => kick1.pos => kick2.pos;
+}
+
+fun void playSnare(float snare_volume)
+{
+    snare_volume => snare.gain;
+    0 => snare.pos;
+    
+    if (snare_volume > 1.0) {
+        noise_env.keyOn();
+    }
+}
 
 /**************************************/
 /* MAIN                               */
@@ -78,9 +98,40 @@ drum_comp.compress();
 880.0 => shaker.freq;
 0.6 => shaker_pan.pan;
 
+-0.6 => hihat_pan.pan;
+
 //while (now < end_of_time) {
 while (1) {
-    3.0 => shaker.noteOn;
-    0 => kick1.pos => kick2.pos => snare.pos;
-    quarter => now;
+    
+    counter % 16 => int beat;
+    
+    <<< beat >>>;
+    
+    if (beat % 2 == 0) {
+        4.0 => shaker.noteOn;
+    } else {
+        0.5 => shaker.noteOn;
+    }
+    
+    0 => hihat.pos;
+    hihat.rate(Math.random2f(0.8, 1.2));
+    if (beat == 2) {
+        hihat_pan.gain(0.4);
+    } else {
+        Math.random2f(0.1, 0.2) => hihat_pan.gain;
+    }
+    
+    if (beat == 0 || beat == 10) {
+        playKick();
+    }
+    
+    if (beat == 4 || beat == 12) {
+        playSnare(snare_loud);
+    } else if (beat == 3 || beat == 11 || beat == 13 || beat == 15) {
+        playSnare(snare_quiet);
+    }
+    
+    0.125::quarter => now;
+    
+    counter++;
 }
