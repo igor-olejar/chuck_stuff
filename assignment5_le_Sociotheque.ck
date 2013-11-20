@@ -19,6 +19,13 @@ r[0] => Echo a => Echo b => reverb; // using 2 echo lines
 r[1] => a;
 r[2] => a;
 
+// Bass (mandolin)
+Mandolin bass => drum_comp;
+bass.bodySize(0.05);
+bass.pluckPos(0.6);
+bass.stringDamping(0.01);
+bass.stringDetune(0.05);
+
 
 0.02 => reverb.mix;
 
@@ -134,6 +141,7 @@ fun void rhodesNotes(int note1, int note2, int note3)
 /* MAIN                               */
 /**************************************/
 0 => int counter;
+0 => int bar;
 
 11 => shaker.which;
 1 => shaker.objects;
@@ -146,6 +154,8 @@ fun void rhodesNotes(int note1, int note2, int note3)
 //while (now < end_of_time) {
 // Composition
 
+// intro
+/*
 rhodesNotes(0,2,3);
 rhodesOn(0.6);
 2::quarter => now;
@@ -166,15 +176,30 @@ rhodesOn(0.6);
 2::quarter => now;
 rhodesOff();
 
+rhodesNotes(1,2,4);
+rhodesOn(0.6);
+1.3::quarter => now;
+rhodesOff();
+
+playKick();
+0.1::quarter => now; 
+
+playSnare(snare_quiet);
+0.1::quarter => now; 
+
 playSnare(snare_loud);
 0.5::quarter => now;
-
+*/
 
 while (1) {
     
     counter % 16 => int beat;
     
-    <<< beat >>>;
+    if (beat == 0) {
+        bar++;
+    }
+    
+    <<< bar >>>;
     
     if (beat % 2 == 0) {
         4.0 => shaker.noteOn;
@@ -200,7 +225,34 @@ while (1) {
         playSnare(snare_quiet);
     }
     
-    0.125::quarter => now;
+    // rhodes
+    if (beat == 0 && (bar == 1 || bar == 5)) {
+        rhodesNotes(0,2,3);
+        rhodesOn(0.6);
+    } else if (beat == 0 && (bar == 2 || bar == 6)) {
+        rhodesNotes(0,3,4);
+        rhodesOn(0.6);
+    } else if (beat == 8 && (bar == 2 || bar  == 6)) {
+        rhodesNotes(0,4,6);
+        rhodesOn(0.6);
+    } else if (beat == 0 && (bar == 3 || bar == 7)) {
+        rhodesNotes(1,3,4);
+        rhodesOn(0.6);
+    } else if (beat == 0 && (bar == 4 || bar == 8)) {
+        rhodesNotes(1,2,4);
+        rhodesOn(0.6);
+    }
+    
+    // bass
+    if (beat == 0 && (bar == 1 || bar == 5)) {
+        Std.mtof(notes[2] - 24) => bass.freq;
+        0.7 => bass.pluck;
+    } else if (beat == 6 && (bar == 1 || bar == 5)) {
+        Std.mtof(notes[0] - 24) => bass.freq;
+        0.7 => bass.pluck;
+    }
+    
+    0.125::quarter => now; 
     
     counter++;
 }
