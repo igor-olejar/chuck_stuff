@@ -5,23 +5,25 @@
 /**************************************/
 SndBuf kick1 => Dyno drum_comp => dac;
 SndBuf kick2 => drum_comp;
-SndBuf snare => drum_comp;
+SndBuf snare => JCRev reverb => drum_comp;
 SndBuf hihat => Pan2 hihat_pan => dac;
-Noise noise => ADSR noise_env => drum_comp;
+Noise noise => ADSR noise_env => reverb;
 //hihat_pan => drum_comp;
 
 // shaker
 Shakers shaker => Pan2 shaker_pan => dac;
-//shaker_pan => drum_comp;
 
-// reverb chain
-/*snare => JCRev reverb => dac;
-hihat => reverb;
-shaker => reverb;
-0.05 => reverb.mix;*/
+// Rhodes
+Rhodey r[3];
+r[0] => Echo a => Echo b => reverb; // using 2 echo lines
+r[1] => a;
+r[2] => a;
+
+
+0.02 => reverb.mix;
 
 /**************************************/
-/* GLOBALS                            */
+/* GLOBALS AND SETTINGS               */
 /**************************************/
 // Scale
 [49, 50, 52, 54, 56, 57, 59, 61] @=> int notes[];  // total 8
@@ -59,19 +61,39 @@ kick2.samples() => kick2.pos;
 hihat.samples() => hihat.pos;
 snare.samples() => snare.pos;
 
+// compressor settings
 drum_comp.compress();
 0.6 => drum_comp.thresh;
 30::ms => drum_comp.attackTime;
 60::ms => drum_comp.releaseTime;
 2.0 => drum_comp.gain;
 
+// kick gain
 0.3 => kick2.gain;
 
+// snare gains
 2.0 => float snare_loud;
 0.2 => float snare_quiet;
-(1::ms, 20::ms, 0.0, 5::ms) => noise_env.set;
-0.4 => noise_env.gain;
+1.1 => snare.rate;
 
+// set the parameters that act on the noise generator
+(1::ms, 60::ms, 0.0, 5::ms) => noise_env.set;
+0.8 => noise_env.gain;
+
+// shape the rhodes sound
+3.0 => r[0].lfoSpeed => r[1].lfoSpeed => r[2].lfoSpeed;
+0.3 => r[0].lfoDepth => r[1].lfoDepth => r[2].lfoDepth;
+
+// shape the rhodes echoes
+quarter => a.max => b.max;
+0.5::quarter => a.delay;
+0.25::quarter => b.delay;
+0.5 => a.mix;
+0.35 => b.mix;
+
+/**************************************/
+/* FUNCTIONS                          */
+/**************************************/
 fun void playKick()
 {
     0 => kick1.pos => kick2.pos;
@@ -85,6 +107,27 @@ fun void playSnare(float snare_volume)
     if (snare_volume > 1.0) {
         noise_env.keyOn();
     }
+}
+
+fun void rhodesOn(float velocity)
+{
+    velocity => r[0].noteOn;
+    velocity => r[1].noteOn;
+    velocity => r[2].noteOn;
+}
+
+fun void rhodesOff()
+{
+    1.0 => r[0].noteOff;
+    1.0 => r[1].noteOff;
+    1.0 => r[2].noteOff;
+}
+
+fun void rhodesNotes(int note1, int note2, int note3)
+{
+    Std.mtof(notes[note1]) => r[0].freq;
+    Std.mtof(notes[note2]) => r[1].freq;
+    Std.mtof(notes[note3]) => r[2].freq;
 }
 
 /**************************************/
@@ -101,6 +144,32 @@ fun void playSnare(float snare_volume)
 -0.6 => hihat_pan.pan;
 
 //while (now < end_of_time) {
+// Composition
+
+rhodesNotes(0,2,3);
+rhodesOn(0.6);
+2::quarter => now;
+rhodesOff();
+
+rhodesNotes(0,3,4);
+rhodesOn(0.6);
+1::quarter => now;
+rhodesOff();
+
+rhodesNotes(0,4,6);
+rhodesOn(0.6);
+1::quarter => now;
+rhodesOff();
+
+rhodesNotes(1,3,4);
+rhodesOn(0.6);
+2::quarter => now;
+rhodesOff();
+
+playSnare(snare_loud);
+0.5::quarter => now;
+
+
 while (1) {
     
     counter % 16 => int beat;
@@ -135,3 +204,4 @@ while (1) {
     
     counter++;
 }
+
