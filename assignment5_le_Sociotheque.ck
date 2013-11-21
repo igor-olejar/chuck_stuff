@@ -19,6 +19,13 @@ r[0] => Echo a => Echo b => reverb; // using 2 echo lines
 r[1] => a;
 r[2] => a;
 
+// hi synth
+SawOsc s[2];
+s[0] => ADSR env => BPF filter => Gain oscGain => reverb => Pan2 synth_pan => dac;
+s[1] => env;
+oscGain => Gain oscFeedback => Delay delay => oscGain; // delay line
+
+
 // Bass (mandolin)
 Mandolin bass => drum_comp;
 bass.bodySize(0.05);
@@ -98,6 +105,20 @@ quarter => a.max => b.max;
 0.5 => a.mix;
 0.35 => b.mix;
 
+// set the synth envelope
+(50::ms, 200::ms, 0.0, 5::ms) => env.set;
+// delay length
+0.25::quarter => delay.max;
+0.25::quarter => delay.delay;
+0.75 => oscFeedback.gain;
+
+// synth filter
+1000.00 => filter.freq;
+0.9 => filter.Q;
+
+// synth volume and pan
+0.5 => synth_pan.gain;
+
 /**************************************/
 /* FUNCTIONS                          */
 /**************************************/
@@ -137,6 +158,14 @@ fun void rhodesNotes(int note1, int note2, int note3)
     Std.mtof(notes[note3]) => r[2].freq;
 }
 
+fun void playSynth(float synth_freq)
+{
+    synth_freq - 0.5 => s[0].freq; // bit of detuning by 0.5 Hz
+    synth_freq + 0.5 => s[1].freq; // bit of detuning
+    // open synth envelope
+    env.keyOn();
+}
+
 /**************************************/
 /* MAIN                               */
 /**************************************/
@@ -155,7 +184,7 @@ fun void rhodesNotes(int note1, int note2, int note3)
 // Composition
 
 // intro
-/*
+
 rhodesNotes(0,2,3);
 rhodesOn(0.6);
 2::quarter => now;
@@ -189,7 +218,7 @@ playSnare(snare_quiet);
 
 playSnare(snare_loud);
 0.5::quarter => now;
-*/
+
 
 while (1) {
     
@@ -199,7 +228,7 @@ while (1) {
         bar++;
     }
     
-    <<< bar >>>;
+    <<< beat, bar >>>;
     
     if (beat % 2 == 0) {
         4.0 => shaker.noteOn;
@@ -250,9 +279,29 @@ while (1) {
     } else if (beat == 6 && (bar == 1 || bar == 5)) {
         Std.mtof(notes[0] - 24) => bass.freq;
         0.7 => bass.pluck;
+    } else if (beat == 12 && (bar == 1 || bar == 5)) {
+        Std.mtof(notes[7] - 24) => bass.freq;
+        0.7 => bass.pluck;
+    } else if (beat == 6 && (bar == 2 || bar == 6)) {
+        Std.mtof(notes[3] - 24) => bass.freq;
+        0.7 => bass.pluck;
+    } else if (beat == 0 && (bar == 4 || bar == 8)) {
+        Std.mtof(notes[1] - 24) => bass.freq;
+        0.7 => bass.pluck;
     }
     
+    // synth
+    if (bar > 4) {
+        Math.random2f(500.0, 2000.0) => filter.freq;
+        Math.random2f(0.5, 1.0) => filter.Q;
+        
+        playSynth(Std.mtof(notes[Math.random2(0,7)]));
+    }    
+    
     0.125::quarter => now; 
+    
+    // close synth envelope
+    env.keyOff();
     
     counter++;
 }
