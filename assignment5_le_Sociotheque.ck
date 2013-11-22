@@ -170,7 +170,7 @@ fun void playSynth(float synth_freq)
 /* MAIN                               */
 /**************************************/
 0 => int counter;
-8 => int bar;
+0 => int bar;
 
 11 => shaker.which;
 1 => shaker.objects;
@@ -184,7 +184,6 @@ fun void playSynth(float synth_freq)
 // Composition
 
 // intro
-/*
 rhodesNotes(0,2,3);
 rhodesOn(0.6);
 2::quarter => now;
@@ -218,10 +217,9 @@ playSnare(snare_quiet);
 
 playSnare(snare_loud);
 0.5::quarter => now;
-*/
 
 while (1) {
-//while (bar <= 16) {
+    //while (bar <= 16) {
     
     counter % 16 => int beat;
     
@@ -261,10 +259,16 @@ while (1) {
         } else if (beat == 3 || beat == 11 || beat == 13 || beat == 15) {
             playSnare(snare_quiet);
         }
-    } else if (bar % 3 == 0) {
+    } else if (bar % 3 != 0) {
         if (beat == 2 || beat == 3 || beat == 8 || beat == 9 || beat == 12 || beat == 13 || beat == 15) {
             playSnare(snare_quiet);
         } else if (beat == 4 || beat == 10 || beat == 14) {
+            playSnare(snare_loud);
+        }
+    } else {
+        if (beat == 1 || beat == 3 || beat == 8 || beat == 9 || beat == 11 || beat == 13 || beat == 15) {
+            playSnare(0.4);
+        } else if (beat == 2 || beat == 6 || beat == 12) {
             playSnare(snare_loud);
         }
     }
@@ -285,7 +289,14 @@ while (1) {
     } else if (beat == 0 && (bar == 4 || bar == 8)) {
         rhodesNotes(1,2,4);
         rhodesOn(0.6);
+    } else if ( bar > 8 && beat == 0) {
+        rhodesNotes(0,2,7);
+        rhodesOn(0.6);
+    } else if ( bar > 8 && bar%4 == 0 && beat == 8) {
+        rhodesNotes(0,4,5);
+        rhodesOn(0.6);
     }
+    
     
     // bass
     if (beat == 0 && (bar == 1 || bar == 5)) {
@@ -312,6 +323,9 @@ while (1) {
         Math.random2f(0.5, 1.0) => filter.Q;
         
         playSynth(Std.mtof(notes[Math.random2(0,7)] ));
+    } else if (bar > 8) {
+        0.1 => env.gain;
+        playSynth(Std.mtof(notes[0] - 12));
     }    
     
     0.125::quarter => now; 
