@@ -33,8 +33,8 @@ bass.pluckPos(0.6);
 bass.stringDamping(0.01);
 bass.stringDetune(0.05);
 
-
-0.02 => reverb.mix;
+// reverberation level
+0.03 => reverb.mix;
 
 /**************************************/
 /* GLOBALS AND SETTINGS               */
@@ -117,7 +117,7 @@ quarter => a.max => b.max;
 0.9 => filter.Q;
 
 // synth volume and pan
-0.5 => synth_pan.gain;
+0.2 => env.gain;
 
 /**************************************/
 /* FUNCTIONS                          */
@@ -170,7 +170,7 @@ fun void playSynth(float synth_freq)
 /* MAIN                               */
 /**************************************/
 0 => int counter;
-0 => int bar;
+8 => int bar;
 
 11 => shaker.which;
 1 => shaker.objects;
@@ -184,7 +184,7 @@ fun void playSynth(float synth_freq)
 // Composition
 
 // intro
-
+/*
 rhodesNotes(0,2,3);
 rhodesOn(0.6);
 2::quarter => now;
@@ -218,9 +218,10 @@ playSnare(snare_quiet);
 
 playSnare(snare_loud);
 0.5::quarter => now;
-
+*/
 
 while (1) {
+//while (bar <= 16) {
     
     counter % 16 => int beat;
     
@@ -230,28 +231,42 @@ while (1) {
     
     <<< beat, bar >>>;
     
+    // play the shaker
     if (beat % 2 == 0) {
         4.0 => shaker.noteOn;
     } else {
         0.5 => shaker.noteOn;
     }
     
+    // play the hihat
     0 => hihat.pos;
     hihat.rate(Math.random2f(0.8, 1.2));
-    if (beat == 2) {
+    if (beat == 2 && bar < 9) {
         hihat_pan.gain(0.4);
-    } else {
+    } else if (beat != 2 && bar < 9) {
         Math.random2f(0.1, 0.2) => hihat_pan.gain;
+    } else {
+        hihat.samples() => hihat.pos;
     }
     
+    // play the kick
     if (beat == 0 || beat == 10) {
         playKick();
-    }
+    } 
     
-    if (beat == 4 || beat == 12) {
-        playSnare(snare_loud);
-    } else if (beat == 3 || beat == 11 || beat == 13 || beat == 15) {
-        playSnare(snare_quiet);
+    // play the snare
+    if (bar < 9) {
+        if (beat == 4 || beat == 12) {
+            playSnare(snare_loud);
+        } else if (beat == 3 || beat == 11 || beat == 13 || beat == 15) {
+            playSnare(snare_quiet);
+        }
+    } else if (bar % 3 == 0) {
+        if (beat == 2 || beat == 3 || beat == 8 || beat == 9 || beat == 12 || beat == 13 || beat == 15) {
+            playSnare(snare_quiet);
+        } else if (beat == 4 || beat == 10 || beat == 14) {
+            playSnare(snare_loud);
+        }
     }
     
     // rhodes
@@ -291,11 +306,12 @@ while (1) {
     }
     
     // synth
-    if (bar > 4) {
+    Math.random2f(-1.0, 1.0) => synth_pan.pan;
+    if (bar > 4 && bar < 9 && beat == 0) {
         Math.random2f(500.0, 2000.0) => filter.freq;
         Math.random2f(0.5, 1.0) => filter.Q;
         
-        playSynth(Std.mtof(notes[Math.random2(0,7)]));
+        playSynth(Std.mtof(notes[Math.random2(0,7)] ));
     }    
     
     0.125::quarter => now; 
