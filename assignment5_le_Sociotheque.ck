@@ -88,11 +88,11 @@ drum_comp.compress();
 // snare gains
 2.0 => float snare_loud;
 0.2 => float snare_quiet;
-1.1 => snare.rate;
+0.8 => snare.rate;
 
 // set the parameters that act on the noise generator
 (1::ms, 60::ms, 0.0, 5::ms) => noise_env.set;
-0.8 => noise_env.gain;
+0.5 => noise_env.gain;
 
 // shape the rhodes sound
 3.0 => r[0].lfoSpeed => r[1].lfoSpeed => r[2].lfoSpeed;
@@ -118,6 +118,16 @@ quarter => a.max => b.max;
 
 // synth volume and pan
 0.2 => env.gain;
+
+// Shaker setup
+11 => shaker.which;
+1 => shaker.objects;
+0.005 => shaker.decay;
+880.0 => shaker.freq;
+0.6 => shaker_pan.pan;
+
+// hi hat pan
+-0.6 => hihat_pan.pan;
 
 /**************************************/
 /* FUNCTIONS                          */
@@ -172,15 +182,6 @@ fun void playSynth(float synth_freq)
 0 => int counter;
 0 => int bar;
 
-11 => shaker.which;
-1 => shaker.objects;
-0.005 => shaker.decay;
-880.0 => shaker.freq;
-0.6 => shaker_pan.pan;
-
--0.6 => hihat_pan.pan;
-
-//while (now < end_of_time) {
 // Composition
 
 // intro
@@ -218,22 +219,22 @@ playSnare(snare_quiet);
 playSnare(snare_loud);
 0.5::quarter => now;
 
-while (1) {
-    //while (bar <= 16) {
+while (bar <= 17) {
     
     counter % 16 => int beat;
     
+    // increase bar count when the beat is zero
     if (beat == 0) {
         bar++;
     }
     
-    <<< beat, bar >>>;
-    
     // play the shaker
-    if (beat % 2 == 0) {
-        4.0 => shaker.noteOn;
-    } else {
-        0.5 => shaker.noteOn;
+    if (bar < 17) {
+        if (beat % 2 == 0) {
+            4.0 => shaker.noteOn;
+        } else {
+            0.5 => shaker.noteOn;
+        }
     }
     
     // play the hihat
@@ -248,9 +249,13 @@ while (1) {
     }
     
     // play the kick
-    if (beat == 0 || beat == 10) {
+    if (bar < 17) {
+        if (beat == 0 || beat == 10) {
+            playKick();
+        } 
+    } else if (bar < 18 && beat == 0) {
         playKick();
-    } 
+    }
     
     // play the snare
     if (bar < 9) {
@@ -259,15 +264,15 @@ while (1) {
         } else if (beat == 3 || beat == 11 || beat == 13 || beat == 15) {
             playSnare(snare_quiet);
         }
-    } else if (bar % 3 != 0) {
+    } else if (bar < 17 && bar % 3 != 0) {
         if (beat == 2 || beat == 3 || beat == 8 || beat == 9 || beat == 12 || beat == 13 || beat == 15) {
             playSnare(snare_quiet);
         } else if (beat == 4 || beat == 10 || beat == 14) {
             playSnare(snare_loud);
         }
-    } else {
+    } else if (bar < 17) {
         if (beat == 1 || beat == 3 || beat == 8 || beat == 9 || beat == 11 || beat == 13 || beat == 15) {
-            playSnare(0.4);
+            playSnare(0.6);
         } else if (beat == 2 || beat == 6 || beat == 12) {
             playSnare(snare_loud);
         }
@@ -289,10 +294,13 @@ while (1) {
     } else if (beat == 0 && (bar == 4 || bar == 8)) {
         rhodesNotes(1,2,4);
         rhodesOn(0.6);
-    } else if ( bar > 8 && beat == 0) {
+    } else if ( bar > 8 && bar < 18 && beat == 0) {
         rhodesNotes(0,2,7);
         rhodesOn(0.6);
-    } else if ( bar > 8 && bar%4 == 0 && beat == 8) {
+    } else if ( bar > 8 && bar < 17 && bar%4 == 0 && beat == 8) {
+        rhodesNotes(0,4,5);
+        rhodesOn(0.6);
+    } else if (bar >= 17 && bar < 18 && beat == 0) {
         rhodesNotes(0,4,5);
         rhodesOn(0.6);
     }
@@ -314,16 +322,18 @@ while (1) {
     } else if (beat == 0 && (bar == 4 || bar == 8)) {
         Std.mtof(notes[1] - 24) => bass.freq;
         0.7 => bass.pluck;
+    } else if (bar > 8 && bar < 17 && beat%3 == 0) {
+        Std.mtof(notes[Math.random2(0,7)]) => bass.freq;
+        0.5 => bass.pluck;
     }
     
     // synth
-    Math.random2f(-1.0, 1.0) => synth_pan.pan;
+    Math.random2f(500.0, 2000.0) => filter.freq;
+    Math.random2f(0.5, 1.0) => filter.Q;
     if (bar > 4 && bar < 9 && beat == 0) {
-        Math.random2f(500.0, 2000.0) => filter.freq;
-        Math.random2f(0.5, 1.0) => filter.Q;
-        
-        playSynth(Std.mtof(notes[Math.random2(0,7)] ));
-    } else if (bar > 8) {
+        Math.sin(counter) => synth_pan.pan;
+        playSynth(Std.mtof(notes[Math.random2(0,7)]));
+    } else if (bar > 8 && bar < 17) {
         0.1 => env.gain;
         playSynth(Std.mtof(notes[0] - 12));
     }    
