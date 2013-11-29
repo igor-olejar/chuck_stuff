@@ -12,10 +12,11 @@ me.dir(-1) + "/audio/click_02.wav" => click.read;
 kick.samples() => kick.pos;
 click.samples() => click.pos;
 
-0.625::second => dur quarter; // quarter note
+// get the duration of quarter note from arguments
+Std.atof(me.arg(0))::second => dur quarter;
 
 // click pan
-0.5 => click_pan.pan;
+0.8 => click_pan.pan;
 
 // click rate
 2.5 => click.rate;

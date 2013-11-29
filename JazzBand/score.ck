@@ -1,30 +1,23 @@
 // score.ck
 // Insert the title of your piece here
 
-// Add your composition files when you want them to come in
+// Beginning of time
+now => time beginning_of_time;
 
-/*Machine.add(me.dir() + "/drums.ck") => int drumID;
+// End of time
+3000::second + now => time end_of_time;
 
-10::second => now;
+0.625 => float quarter; // quarter note duration
 
-Machine.add(me.dir() + "/bass.ck") => int bassID;
-
-10::second => now;
-
-Machine.add(me.dir() + "/flute.ck") => int fluteID;
-Machine.add(me.dir() + "/piano.ck") => int pianoID;
-
-10::second => now;
-
-Machine.remove(drumID);
-Machine.remove(bassID);
-Machine.remove(fluteID);
-Machine.remove(pianoID);*/
-
-0.625::second => dur quarter; // quarter note
+// Scale
+[46, 48, 49, 51, 53, 54, 56, 58] @=> int notes[];  // total 8
 
 // pad
-Machine.add(me.dir() + "/pad.ck") => int padID;
+Machine.add(me.dir() + "/pad.ck:" + quarter) => int padID;
 Machine.add(me.dir() + "/drums.ck") => int drumsID;
 
-while (true) quarter => now;
+while (now < end_of_time) quarter::second => now;
+
+// kill all the children
+Machine.remove(padID);
+Machine.remove(drumsID);
