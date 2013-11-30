@@ -1,8 +1,21 @@
 // piano.ck
-// Insert the title of your piece here
+// Touch of flu
 
-// Part of your composition goes here
+Wurley piano => PRCRev reverb => dac;
+
+0.625::second => dur quarter;
+
+0.6 => reverb.mix;
+1.0 => reverb.gain;
+
+// array of midi notes
+[46, 48, 49, 51, 53, 54, 56, 58] @=> int notes[];  // total 8
+
+Std.mtof(notes[7]) => piano.freq;
 
 while(true){
-    1::second => now;
+    0.9 => piano.noteOn;
+    quarter => now;
+    1.0 => piano.noteOff;
+    3::quarter => now;
 }

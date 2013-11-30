@@ -1,9 +1,8 @@
 // pad.ck
-// Assignment 6 - Robbin' Robyn
+// Touch of flu
 
 // get the duration of quarter note from arguments
 Std.atof(me.arg(0))::second => dur quarter;
-
 
 // Sound
 SndBuf pad => BPF filter => Chorus chorus => NRev reverb => dac.left;
@@ -31,7 +30,6 @@ Std.mtof((46 + 48) + Math.random2(-20,20)) => filter.freq;
 quarter => echo.max;
 0.5::quarter => echo.delay;
 1.0 => echo.mix;
-
 
 while (true) {
     
