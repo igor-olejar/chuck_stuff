@@ -14,6 +14,9 @@ me.dir(-1) + "/audio/stereo_fx_05.wav" => pad.read;
 // mute the pad sound
 pad.samples() => pad.pos;
 
+// pad sound rate
+0.95 => pad.rate;
+
 // chorus
 0.5 => chorus.mix;
 0.25::quarter / second => chorus.modFreq;

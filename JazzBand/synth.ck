@@ -21,5 +21,16 @@ Std.mtof(notes[0] - 36) => modulator.freq;
 0.05 => pan2.gain;
 
 while (true) {
-    quarter => now;
+    // modulator frequency
+    Std.mtof(notes[0] - 36) => modulator.freq;
+    4::quarter => now;
+    
+    Std.mtof(notes[1] - 36) => modulator.freq;
+    4::quarter => now;
+    
+    Std.mtof(notes[2] - 36) => modulator.freq;
+    4::quarter => now;
+    
+    Std.mtof(notes[3] - 36) => modulator.freq;
+    4::quarter => now;
 }
