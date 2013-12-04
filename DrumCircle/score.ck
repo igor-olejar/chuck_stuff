@@ -3,4 +3,16 @@
 Setup globals;
 globals.setupAll();
 
-<<<globals.midi_notes[2]>>>;
+ShakerMaker sm;
+//sm.makeShaker(7, 0.9, 20.0) @=> Shakers someShaker => dac; // sleigh bell
+sm.makeShaker(15, 0.9, 20.0) @=> Shakers someShaker => dac; // mug
+
+DrumMaker dm;
+dm.makeDrum("kick_01.wav", 0.2) @=> SndBuf kick => dac;
+
+0.2 => someShaker.noteOn;
+globals.quarter => now;
+1.0 => someShaker.noteOff;
+
+0 => kick.pos;
+globals.quarter => now;
