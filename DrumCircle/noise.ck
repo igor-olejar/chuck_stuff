@@ -1,13 +1,13 @@
 // noise.ck
 
 Setup globals;
-globals.setupAll();
+//globals.setupAll();
 
 Noise n => ADSR envelope => dac;
 
 (1::ms, 50::ms, 0.0, 1::ms) => envelope.set;
 
-0.2 => envelope.gain;
+0.05 => envelope.gain;
 
 fun void playNoise(float timeFrac) 
 {
