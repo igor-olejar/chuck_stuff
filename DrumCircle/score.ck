@@ -1,6 +1,9 @@
 // score.ck
 
-Setup globals;
+Machine.add(me.dir() + "/noise.ck") => int noiseID;
+Machine.add(me.dir() + "/shakers.ck") => int shakerID;
+
+/*Setup globals;
 globals.setupAll();
 
 ShakerMaker sm;
@@ -16,3 +19,4 @@ globals.quarter => now;
 
 0 => kick.pos;
 globals.quarter => now;
+*/

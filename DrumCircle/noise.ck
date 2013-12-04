@@ -1,8 +1,9 @@
 // noise.ck
 
-Noise n => ADSR envelope => dac;
+Setup globals;
+globals.setupAll();
 
-0.625::second => dur quarter;
+Noise n => ADSR envelope => dac;
 
 (1::ms, 50::ms, 0.0, 1::ms) => envelope.set;
 
@@ -11,7 +12,7 @@ Noise n => ADSR envelope => dac;
 fun void playNoise(float timeFrac) 
 {
     1 => envelope.keyOn;
-    timeFrac::quarter => now;
+    timeFrac::globals.quarter => now;
     1 => envelope.keyOff;
 }
 
