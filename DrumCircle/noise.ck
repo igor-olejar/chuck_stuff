@@ -8,7 +8,7 @@ Noise n => ADSR envelope => dac;
 
 0.2 => envelope.gain;
 
-fun void playNoise(float timeFrac)
+fun void playNoise(float timeFrac) 
 {
     1 => envelope.keyOn;
     timeFrac::quarter => now;
