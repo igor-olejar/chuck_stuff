@@ -1,7 +1,6 @@
 // shakers.ck
 
 Setup globals;
-//globals.setupAll();
 
 Machine.add(me.dir() + "/ShakerMaker.ck");
 ShakerMaker sm;
@@ -21,14 +20,14 @@ fun void playShaker(Shakers instrument, float velocity, float timeFrac)
     velocity => instrument.noteOff;
 }
 
-fun void playBell()
+fun void playBell(int sequence)
 {
     while (true) {
         playShaker(bell, 1.0, 1.0);
     }
 }
 
-fun void playMug()
+fun void playMug(int sequence)
 {
     while (true) {
         0.75::globals.quarter => now;

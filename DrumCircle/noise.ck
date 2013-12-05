@@ -1,7 +1,6 @@
 // noise.ck
 
 Setup globals;
-//globals.setupAll();
 
 Noise n => ADSR envelope => dac;
 
