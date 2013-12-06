@@ -16,7 +16,7 @@ sm.makeShaker(15, 0.9, 20.0) @=> Shakers mug => Pan2 mug_pan => dac; // mug
 fun void playShaker(Shakers instrument, float velocity, float timeFrac)
 {
     velocity => instrument.noteOn;
-    0.8 => bell_pan.gain => mug_pan.gain;
+    0.3 => bell_pan.gain => mug_pan.gain;
     
     // advance time
     timeFrac::globals.quarter => now;
