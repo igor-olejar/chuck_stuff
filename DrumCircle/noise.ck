@@ -2,11 +2,13 @@
 
 Setup globals;
 
-Noise n => ADSR envelope => dac;
+// Sound network
+Noise n => ADSR envelope => Pan2 noise_pan => dac;
 
 (1::ms, 50::ms, 0.0, 1::ms) => envelope.set;
 
-0.05 => envelope.gain;
+0.3 => noise_pan.pan;
+0.1 => noise_pan.gain;
 
 fun void playNoise(float timeFrac) 
 {

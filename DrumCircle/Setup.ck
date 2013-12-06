@@ -5,6 +5,7 @@ public class Setup
 {
     static dur quarter; // the length of the quarter note
     static int midi_notes[]; // here we keep all the midi note values
+    //Gain g;
     
     fun void setupAll()
     {
@@ -21,5 +22,9 @@ public class Setup
 	// initialize the Notes class and assign the array of notes to this class's array of notes
         notes.init();
         notes.notes @=> midi_notes;
+	
+	// set the overall gain level
+	//g => dac;
+	//0.909 => g.gain;
     }
 }
