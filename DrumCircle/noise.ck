@@ -1,6 +1,10 @@
 // noise.ck
 
+// global variables
 Setup globals;
+
+// get the sequence number from arguments
+Std.atoi(me.arg(0)) => int sequence;
 
 // Sound network
 Noise n => ADSR envelope => Pan2 noise_pan => dac;
@@ -18,7 +22,17 @@ fun void playNoise(float timeFrac)
 }
 
 while (true) {
-    playNoise(0.75);
-    playNoise(0.75);
-    playNoise(0.5);
+    if (sequence == 1 || sequence == 2) {
+        globals.quarter => now;
+    } else if (sequence ==3 ) {
+        playNoise(0.75);
+        playNoise(0.75);
+        playNoise(0.5);
+    } else {
+        Math.random2f(0.1,0.5) => n.gain;
+        playNoise(0.25);
+        repeat(3) playNoise(0.25);
+        playNoise(0.25);
+        repeat(3) playNoise(0.25);
+    }
 }

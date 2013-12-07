@@ -36,8 +36,11 @@ fun void playBell(int sequence)
 {
     while (true) {
         // if sequence is 1, just advance time, do not play
-        if (sequence == 1) {
+        if (sequence == 1 || sequence == 2) {
             globals.quarter => now;
+        } else if (sequence == 3) {
+            0.5::globals.quarter => now;
+            playShaker(bell, 1.0, 0.5);
         } else {
             playShaker(bell, 1.0, 1.0);
         }
@@ -47,7 +50,7 @@ fun void playBell(int sequence)
 fun void playMug(int sequence)
 {
     while (true) {
-        if (sequence == 1) {
+        if (sequence == 1 || sequence == 2) {
             playShaker(mug, 1.0, 0.25);
             repeat(3) playShaker(mug, 0.5, 0.25);
             playShaker(mug, 0.7, 0.25);
