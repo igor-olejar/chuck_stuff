@@ -1,7 +1,7 @@
 // samples.ck
 
 // get global variables
-Setup globals;
+Setup globals; // used mainly for the value of the quarter note
 
 // instantiate the Drum Maker class
 DrumMaker dm;
@@ -21,18 +21,21 @@ dm.makeDrum("snare_03.wav", 0.2) @=> SndBuf snare => g;
 // cowbell
 dm.makeDrum("cowbell_01.wav", 0.2) @=> SndBuf clap => g;
 
+// queue the position of each drum object to the end of the sample
 kick.samples() => kick.pos;
 snare.samples() => snare.pos;
 clap.samples() => clap.pos;
 
+// function that plays the sample. Its arguments are the drum object, velocity (or gain) and the fraction of the quarter note
 fun void playSample(SndBuf instrument, float velocity, float timeFrac)
 {
-    0 => instrument.pos;
-    velocity => instrument.gain;
+    0 => instrument.pos; // play from the start
+    velocity => instrument.gain; // set the gain of the instrument
     0.1 => g.gain; // resetting the shred's gain, just in case
     timeFrac::globals.quarter => now;
 }
 
+// plays the kick sample, according to the given sequence number
 fun void playKick(int sequence)
 {
     while (true) {
@@ -50,6 +53,7 @@ fun void playKick(int sequence)
     }
 }
 
+// plays the snare sample
 fun void playSnare(int sequence)
 {
     while (true) {
@@ -71,6 +75,7 @@ fun void playSnare(int sequence)
     }
 }
 
+// plays the clap sample
 fun void playClap(int sequence)
 {
     while (true) {
@@ -97,10 +102,12 @@ fun void playClap(int sequence)
     }
 }
 
+// spork our drum-playing functions
 spork ~ playKick(sequence);
 spork ~ playSnare(sequence);
 spork ~ playClap(sequence);
 
+// main loop that just advances the time
 while (true) {
     globals.quarter => now;
 }

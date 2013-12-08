@@ -7,6 +7,7 @@ Machine.add(me.dir() + "/BPM.ck");
 // class that contains the notes array as a static variable
 Machine.add(me.dir() + "/Notes.ck");
 
+// add classes that create Shakers and Drums
 Machine.add(me.dir() + "/ShakerMaker.ck");
 Machine.add(me.dir() + "/DrumMaker.ck");
 

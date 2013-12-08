@@ -9,11 +9,12 @@ Std.atoi(me.arg(0)) => int sequence;
 // Sound network
 Noise n => ADSR envelope => Pan2 noise_pan => dac;
 
-(1::ms, 50::ms, 0.0, 1::ms) => envelope.set;
+(1::ms, 50::ms, 0.0, 1::ms) => envelope.set; // set the attack, decay, sustain and release of the ADSR envelope
 
-0.3 => noise_pan.pan;
-0.1 => noise_pan.gain;
+0.3 => noise_pan.pan; // set the gain, just before dac
+0.1 => noise_pan.gain; // set the pan
 
+// function that plays the burst of noise
 fun void playNoise(float timeFrac) 
 {
     1 => envelope.keyOn;
@@ -21,6 +22,7 @@ fun void playNoise(float timeFrac)
     1 => envelope.keyOff;
 }
 
+// Main loop
 while (true) {
     if (sequence == 1 || sequence == 2) {
         globals.quarter => now;

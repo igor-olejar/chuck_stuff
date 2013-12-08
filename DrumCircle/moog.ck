@@ -9,17 +9,19 @@ Std.atoi(me.arg(0)) => int sequence;
 // Moog instance
 Moog m => Gain g => dac;
 
+// function that actually produces the sound
 fun void playMoog(float velocity, int note, float timeFrac)
 {
-    Std.mtof(globals.midi_notes[note]-12) => m.freq;
-    velocity => m.noteOn;
-    0.3 => g.gain;
+    Std.mtof(globals.midi_notes[note]-12) => m.freq; // pitch down by 12 semitones
+    velocity => m.noteOn; // start the sound
+    0.3 => g.gain; // set the gain
     
     timeFrac::globals.quarter => now;
     
-    1 => m.noteOff;
+    1 => m.noteOff; // stop playing the sound
 }
 
+// Main loop
 while (true) {
     if (sequence == 1) {
         globals.quarter => now;

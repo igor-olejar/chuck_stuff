@@ -1,5 +1,5 @@
 // BPM.ck
-// global BPM conductor Class
+// global BPM conductor Class. Modified from the class
 public class BPM
 {
     // global variables

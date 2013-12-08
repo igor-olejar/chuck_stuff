@@ -1,6 +1,8 @@
 // score.ck
-Setup globals;
-globals.setupAll();
+// scoring the whole 'composition'
+
+Setup globals; // make an instance of the Setup class
+globals.setupAll(); // this sets up the tempo (length of the quarter note) and the array of MIDI notes
 
 // define 'beat' for convenience. 1 beat = 4 quarter notes
 1 => int beat;
